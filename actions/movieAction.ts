@@ -16,6 +16,7 @@ export async function searchMovies({ search, page, pageSize }) {
     .from("movie")
     .select("*")
     .like("title", `%${search}%`)
+    .order("dibs_on", { ascending: false })
     .range((page - 1) * pageSize, page * pageSize - 1);
 
   const hasNextPage = count > page * pageSize;
@@ -39,7 +40,7 @@ export async function searchMovies({ search, page, pageSize }) {
   };
 }
 
-export async function getMovie(id) {
+export async function getMovie(id: number) {
   const supabase = await createServerSupabaseClient();
 
   const { data, error } = await supabase
@@ -51,4 +52,16 @@ export async function getMovie(id) {
   handleError(error);
 
   return data;
+}
+
+// 영화 찜하기
+export async function setDibs(id: number, dibsOn: boolean) {
+  const supabase = await createServerSupabaseClient();
+
+  const { error } = await supabase
+    .from("movie")
+    .update({ dibs_on: dibsOn })
+    .eq("id", id);
+
+  handleError(error);
 }
